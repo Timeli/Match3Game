@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FindObject : MonoBehaviour
+public class Control : MonoBehaviour
 {
     private Vector3 _worldPosition;
     private bool _isEnable;
@@ -11,9 +11,17 @@ public class FindObject : MonoBehaviour
     Vector2[] vectors = new Vector2[] { Vector2.right, Vector2.up, 
                                         Vector2.left, Vector2.down };
 
+
+    private void Awake()
+    {
+# if UNITY_EDITOR
+        Debug.Log("In Editor");
+#endif
+    }
+
     private void Update()
     {
-        ChooseSquareToChange();
+        SelectSquareToChange();
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
@@ -46,7 +54,7 @@ public class FindObject : MonoBehaviour
         return _Two;
     }
 
-    private void ChooseSquareToChange()
+    private void SelectSquareToChange()
     {
         RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.right, 0f, LayerMask.GetMask("Raycast"));
         
