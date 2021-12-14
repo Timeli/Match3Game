@@ -12,7 +12,7 @@ public class Control : MonoBehaviour
     
     private Vector2 _initialPos = new Vector2(-2.8f, -4.4f);
     private Vector2[] possibleDirection = new Vector2[] { Vector2.right, Vector2.up, 
-                                        Vector2.left, Vector2.down };
+                                                       Vector2.left, Vector2.down };
 
     public GameObject GetOne => _one;
     public GameObject GetTwo => _two;
@@ -73,7 +73,6 @@ public class Control : MonoBehaviour
     private void Moved(Vector3 worldPosition)
     {
         Vector2 vector = new Vector2(worldPosition.x, worldPosition.y);
-        Debug.Log(vector.x + "  " + vector.y);
         transform.position = vector;
     }
 
@@ -92,7 +91,7 @@ public class Control : MonoBehaviour
     private void SelectSquareToChange()
     {
         RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.right, 0f, 
-                                             LayerMask.GetMask("Raycast"));
+                                                     LayerMask.GetMask("Raycast"));
         
         if (hit)
         {

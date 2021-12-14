@@ -3,7 +3,6 @@ using UnityEngine;
 public class ChangeBlocks : MonoBehaviour
 {
     [SerializeField] private Control findObj;
-    [SerializeField] private DeleteBlock delete;
 
     private GameObject _One;
     private GameObject _Two;
