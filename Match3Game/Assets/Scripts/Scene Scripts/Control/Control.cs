@@ -3,26 +3,49 @@ using UnityEngine;
 public class Control : MonoBehaviour
 {
     private Vector3 _worldPosition;
+    private Platform _platform;
     private bool _isEnable;
 
-    private GameObject _One;
-    private GameObject _Two;
-
-    Vector2[] vectors = new Vector2[] { Vector2.right, Vector2.up, 
+    private GameObject _one;
+    private GameObject _two;
+    
+    
+    private Vector2 _initialPos = new Vector2(-2.8f, -4.4f);
+    private Vector2[] possibleDirection = new Vector2[] { Vector2.right, Vector2.up, 
                                         Vector2.left, Vector2.down };
+
+    public GameObject GetOne => _one;
+    public GameObject GetTwo => _two;
 
 
     private void Awake()
     {
+#if UNITY_ANDROID
+        _platform = Platform.Android;
+#endif
 # if UNITY_EDITOR
-        Debug.Log("In Editor");
+        _platform = Platform.UnityEditor;
 #endif
     }
 
     private void Update()
     {
         SelectSquareToChange();
-        if (Input.touchCount > 0)
+
+        if (_platform == Platform.UnityEditor)
+        {
+            if (Input.GetMouseButton(0))
+            {
+                _worldPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Moved(_worldPosition);
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                Ended();
+            }
+        }
+
+        if (_platform.Equals(Platform.Android) && Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
             _worldPosition = Camera.main.ScreenToWorldPoint(touch.position);
@@ -31,12 +54,10 @@ public class Control : MonoBehaviour
             {
                 Began();
             }
-
             else if (touch.phase == TouchPhase.Moved && _isEnable)
             {
-                Moved();
+                Moved(_worldPosition);
             }
-
             else if (touch.phase == TouchPhase.Ended)
             {
                 Ended();
@@ -44,71 +65,72 @@ public class Control : MonoBehaviour
         }
     }
 
-    public GameObject GetOne()
-    {
-        return _One;
-    }
-
-    public GameObject GetTwo()
-    {
-        return _Two;
-    }
-
-    private void SelectSquareToChange()
-    {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.right, 0f, LayerMask.GetMask("Raycast"));
-        
-        if (hit)
-        {
-            if (!_One)
-            {
-                _One = hit.collider.gameObject;
-            }
-            else if (!_Two && !hit.collider.gameObject.Equals(_One))
-            {
-                if (FindPossibleBlocks(hit.collider.gameObject))
-                    _Two = hit.collider.gameObject;
-            }
-        }
-    }
-
-    private bool FindPossibleBlocks(GameObject twoObj)
-    {
-        _One.layer = 0;
-        for (int i = 0; i < vectors.Length; i++)
-        {
-            RaycastHit2D hitNearObj = Physics2D.Raycast(_One.transform.position, vectors[i], 0.8f, LayerMask.GetMask("Raycast"));
-
-            if (hitNearObj && hitNearObj.collider.gameObject.Equals(twoObj))
-            {
-                _One.layer = 3;
-                return true;
-            }
-        }
-        _One.layer = 3;
-        return false;
-    }
-
     private void Began()
     {
         _isEnable = true;
     }
 
-    private void Moved()
+    private void Moved(Vector3 worldPosition)
     {
-        Vector2 vector = new Vector2(_worldPosition.x, _worldPosition.y);
+        Vector2 vector = new Vector2(worldPosition.x, worldPosition.y);
+        Debug.Log(vector.x + "  " + vector.y);
         transform.position = vector;
     }
 
     private void Ended()
     {
         // PathFinder to start position
-        transform.position = new Vector2(-2.8f, -4.4f);
+        transform.position = _initialPos;
 
         // Deselect One and Two Objects
-        _One = null;
-        _Two = null;
+        _one = null;
+        _two = null;
 
         _isEnable = false;
     }
+   
+    private void SelectSquareToChange()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.right, 0f, 
+                                             LayerMask.GetMask("Raycast"));
+        
+        if (hit)
+        {
+            if (_one == false)
+            {
+                _one = hit.collider.gameObject;
+            }
+            else if (_two == false && hit.collider.gameObject.Equals(_one) == false)
+            {
+                if (FindPossibleBlocks(hit.collider.gameObject))
+                    _two = hit.collider.gameObject;
+            }
+        }
+    }
+
+    private bool FindPossibleBlocks(GameObject twoObj)
+    {
+        _one.layer = 0;
+        for (int i = 0; i < possibleDirection.Length; i++)
+        {
+            RaycastHit2D hitNearObj = Physics2D.Raycast(_one.transform.position, possibleDirection[i],
+                                                        0.8f, LayerMask.GetMask("Raycast"));
+
+            if (hitNearObj && hitNearObj.collider.gameObject.Equals(twoObj))
+            {
+                _one.layer = 3;
+                return true;
+            }
+        }
+        _one.layer = 3;
+        return false;
+    }
+}
+
+public enum Platform
+{
+    UnityEditor,
+    Android,
+    Windows,
+    Other
 }

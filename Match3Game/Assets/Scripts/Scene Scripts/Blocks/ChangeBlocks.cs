@@ -32,7 +32,6 @@ public class ChangeBlocks : MonoBehaviour
             MoveBack();
             SetGlobalCondition();
         }
-        //print(_distance);
     }
 
     private void SetGlobalCondition()
@@ -106,17 +105,16 @@ public class ChangeBlocks : MonoBehaviour
 
     private void GetTwoBlocks()
     {
-        if (findObj.GetOne() && findObj.GetTwo() && _direction.Equals("wait"))
+        if (findObj.GetOne && findObj.GetTwo && _direction.Equals("wait"))
         {
-            _One = findObj.GetOne();
-            _Two = findObj.GetTwo();
+            _One = findObj.GetOne;
+            _Two = findObj.GetTwo;
             
             if (tmpVectorOne == Vector3.zero && tmpVectorTwo == Vector3.zero )
             {
                 tmpVectorOne = new Vector2(_One.transform.position.x, _One.transform.position.y);
                 tmpVectorTwo = new Vector2(_Two.transform.position.x, _Two.transform.position.y);
                 _direction = "forward";
-
             }
         }
     }
